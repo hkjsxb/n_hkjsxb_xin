@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HKJSXB 导航中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px auto;
+            max-width: 800px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6e8efb;
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+        
+        .category-filter {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 0 15px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-filter select {
+            padding: 15px 5px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .nav-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .nav-card.hidden {
+            display: none;
+        }
+        
+        .nav-card.filtered {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            padding: 20px;
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            color: white;
+        }
+        
+        .card-header h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header h3 i {
+            margin-right: 10px;
+        }
+        
+        .card-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        
+        .card-content p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .card-footer {
+            padding: 15px 20px;
+            background: #f9f9f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .url {
+            font-size: 0.9rem;
+            color: #888;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70%;
+        }
+        
+        .btn {
+            background: #6e8efb;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .btn:hover {
+            background: #5a7dfa;
+        }
+        
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            color: white;
+            font-size: 1.2rem;
+            display: none;
+        }
+        
+        .no-results.show {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: white;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .search-box {
+                margin: 10px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HKJSXB 导航中心</h1>
+            <p>一站式访问所有HKJSXB平台的服务与资源</p>
+        </header>
+        
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索服务或资源...">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="category-filter">
+                <i class="fas fa-filter" style="margin-right: 10px; color: #6e8efb;"></i>
+                <select id="categoryFilter">
+                    <option value="all">所有分类</option>
+                    <option value="blog">博客平台</option>
+                    <option value="video">视频中心</option>
+                    <option value="english">英语学习</option>
+                    <option value="cloud">云服务</option>
+                    <option value="links">友情链接</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="nav-grid">
+            <!-- 博客卡片 -->
+            <div class="nav-card" data-category="blog" data-search="博客平台 文章 技术分享 行业见解 hkjsxb.xin hkjsxb.com">
+                <div class="card-header">
+                    <h3><i class="fas fa-blog"></i> 博客平台</h3>
+                </div>
+                <div class="card-content">
+                    <p>访问我们的博客，获取最新文章、技术分享和行业见解。</p>
+                </div>
+                <div class="card-footer">
+                    <span class="url">hkjsxb.xin / www.hkjsxb.xin</span>
+                    <a href="https://hkjsxb.xin" class="btn">访问 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+            
+            <!-- 视频卡片 -->
+            <div class="nav-card" data-category="video" data-search="视频中心 教程 演示 视频内容 v.hkjsxb.xin">
+                <div class="card-header">
+                    <h3><i class="fas fa-video"></i> 视频中心</h3>
+                </div>
+                <div class="card-content">
+                    <p>观看教程、演示和各种有趣的视频内容。</p>
+                </div>
+                <div class="card-footer">
+                    <span class="url">v.hkjsxb.xin</span>
+                    <a href="https://v.hkjsxb.xin" class="btn">访问 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+            
+            <!-- 英语学习卡片 -->
+            <div class="nav-card" data-category="english" data-search="英语学习 英语技能 学习资源 练习材料 word.hkjsxb.xin">
+                <div class="card-header">
+                    <h3><i class="fas fa-language"></i> 英语学习</h3>
+                </div>
+                <div class="card-content">
+                    <p>提高英语技能，获取学习资源和练习材料。</p>
+                </div>
+                <div class="card-footer">
+                    <span class="url">word.hkjsxb.xin</span>
+                    <a href="https://word.hkjsxb.xin" class="btn">访问 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+            
+           
+            
+            <!-- 网盘卡片 -->
+            <div class="nav-card" data-category="cloud" data-search="云存储 文件存储 网盘 d.hkjsxb.xin">
+                <div class="card-header">
+                    <h3><i class="fas fa-cloud"></i> 云存储</h3>
+                </div>
+                <div class="card-content">
+                    <p>安全可靠的云存储服务，随时随地访问您的文件。</p>
+                </div>
+                <div class="card-footer">
+                    <span class="url">d.hkjsxb.xin</span>
+                    <a href="https://d.hkjsxb.xin" class="btn">访问 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+            
+            
+           
+        </div>
+        
+        <div class="no-results" id="noResults">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <p>没有找到匹配的结果</p>
+            <p style="font-size: 1rem; margin-top: 10px;">尝试使用其他关键词或选择其他分类</p>
+        </div>
+        
+        <footer>
+            <p>© 2025 HKJSXB 导航中心 - 一站式服务平台</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const cards = document.querySelectorAll('.nav-card');
+            const noResults = document.getElementById('noResults');
+            
+            // 搜索和筛选功能
+            function filterCards() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const category = categoryFilter.value;
+                let visibleCount = 0;
+                
+                cards.forEach(card => {
+                    const cardSearch = card.getAttribute('data-search').toLowerCase();
+                    const cardCategory = card.getAttribute('data-category');
+                    
+                    const matchesSearch = searchTerm === '' || cardSearch.includes(searchTerm);
+                    const matchesCategory = category === 'all' || cardCategory === category;
+                    
+                    if (matchesSearch && matchesCategory) {
+                        card.classList.remove('hidden', 'filtered');
+                        visibleCount++;
+                    } else if (matchesSearch || matchesCategory) {
+                        card.classList.remove('hidden');
+                        card.classList.add('filtered');
+                    } else {
+                        card.classList.add('hidden');
+                        card.classList.remove('filtered');
+                    }
+                });
+                
+                // 显示/隐藏无结果提示
+                if (visibleCount === 0) {
+                    noResults.classList.add('show');
+                } else {
+                    noResults.classList.remove('show');
+                }
+            }
+            
+            searchInput.addEventListener('input', filterCards);
+            categoryFilter.addEventListener('change', filterCards);
+            
+            // 添加回车键搜索功能
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filterCards();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
